@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Infant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
@@ -487,8 +488,8 @@
     <div id="loginError" class="login-error">Usuário ou senha incorretos. Tente novamente.</div>
 
     <div class="form-group" style="text-align:left">
-      <label class="form-label" for="loginUser">Seu nome</label>
-      <input class="form-input" id="loginUser" type="text" placeholder="Ex: Henrique O" autocomplete="username">
+      <label class="form-label" for="loginUser">E-mail</label>
+      <input class="form-input" id="loginUser" type="email" placeholder="seuemail@casamento.com" autocomplete="email">
     </div>
     <div class="form-group" style="text-align:left">
       <label class="form-label" for="loginPass">Senha</label>
@@ -652,55 +653,66 @@
 </div>
 
 <script>
-  /* ─── AUTH ─── */
-  const USERS = { 'Henrique O': 'RafaEuTeAmo', 'Rafaella G': 'HenriqueEuTeAmo' };
+  /* ─── AUTH (Firebase) ─── */
+  function getFriendlyName(email) {
+    const names = {
+      'henrique@casamento.com': 'Henrique O',
+      'rafaella@casamento.com': 'Rafaella G'
+    };
+    return names[email] || email.split('@')[0];
+  }
 
-  function checkAuth() {
-    const user = sessionStorage.getItem('casamento_auth');
-    if (!user) {
-      document.getElementById('loginScreen').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    } else {
+  function showDashboard(user) {
+    const name = getFriendlyName(user.email);
+    document.getElementById('loginScreen').style.opacity = '0';
+    document.getElementById('loginScreen').style.transition = 'opacity 300ms';
+    setTimeout(() => {
       document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('navUserName').textContent = user;
-      document.getElementById('mobUserName').textContent = 'Olá, ' + user;
-      document.body.style.overflow = '';
-    }
+      document.getElementById('loginScreen').style.opacity = '1';
+    }, 300);
+    document.getElementById('navUserName').textContent = name;
+    document.getElementById('mobUserName').textContent = 'Olá, ' + name;
+    document.body.style.overflow = '';
+  }
+
+  function showLogin() {
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    closeMenu();
   }
 
   function doLogin() {
-    const user = document.getElementById('loginUser').value.trim();
-    const pass = document.getElementById('loginPass').value;
-    const err  = document.getElementById('loginError');
-
-    if (USERS[user] && USERS[user] === pass) {
-      sessionStorage.setItem('casamento_auth', user);
-      err.style.display = 'none';
-      document.getElementById('loginScreen').style.opacity = '0';
-      document.getElementById('loginScreen').style.transition = 'opacity 300ms';
-      setTimeout(() => {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('navUserName').textContent = user;
-        document.body.style.overflow = '';
-      }, 300);
-    } else {
-      err.style.display = 'block';
-      const card = document.querySelector('.login-card');
-      card.classList.remove('shake');
-      card.offsetHeight;
-      card.classList.add('shake');
-      document.getElementById('loginPass').value = '';
-      document.getElementById('loginPass').focus();
-    }
+    const email = document.getElementById('loginUser').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+    const err   = document.getElementById('loginError');
+    const btn   = document.querySelector('.login-btn');
+    btn.disabled = true;
+    btn.textContent = 'Entrando...';
+    firebase.auth().signInWithEmailAndPassword(email, pass)
+      .then(() => { err.style.display = 'none'; })
+      .catch(() => {
+        err.style.display = 'block';
+        const card = document.querySelector('.login-card');
+        card.classList.remove('shake');
+        card.offsetHeight;
+        card.classList.add('shake');
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginPass').focus();
+      })
+      .finally(() => { btn.disabled = false; btn.textContent = 'Entrar'; });
   }
+
+  function doLogout() { firebase.auth().signOut(); closeMenu(); }
 
   function toggleMenu() {
     const m = document.getElementById('mobMenu');
     const o = document.getElementById('mobOverlay');
     const isOpen = m.classList.toggle('open');
     o.classList.toggle('open', isOpen);
-    if (!document.getElementById('loginScreen').classList.contains('open') &&
-        document.getElementById('loginScreen').style.display === 'none') {
+    if (document.getElementById('loginScreen').style.display === 'none') {
       document.body.style.overflow = isOpen ? 'hidden' : '';
     }
   }
@@ -710,16 +722,6 @@
     if (document.getElementById('loginScreen').style.display === 'none') {
       document.body.style.overflow = '';
     }
-  }
-
-  function doLogout() {
-    sessionStorage.removeItem('casamento_auth');
-    document.getElementById('loginUser').value = '';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginError').style.display = 'none';
-    document.getElementById('loginScreen').style.opacity = '1';
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
   }
 
   function togglePw() {
@@ -733,8 +735,6 @@
       icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
     }
   }
-
-  checkAuth();
 
   /* ─── FIREBASE ─── */
   if (!firebase.apps.length) {
@@ -955,10 +955,21 @@
     if (e.target === this) closeBudgetModal();
   });
 
-  // Init — escuta mudanças em tempo real
-  WED.onSnapshot(snap => {
-    _data = snap.exists ? snap.data() : {};
-    render();
+  // Init — Firebase Auth controla tudo
+  let _unsubSnap = null;
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+      showDashboard(user);
+      if (!_unsubSnap) {
+        _unsubSnap = WED.onSnapshot(snap => {
+          _data = snap.exists ? snap.data() : {};
+          render();
+        });
+      }
+    } else {
+      showLogin();
+      if (_unsubSnap) { _unsubSnap(); _unsubSnap = null; }
+    }
   });
 </script>
 </body>
