@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Infant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
   <style>
     :root {
       --bg:        #FDFAF5;
@@ -633,8 +635,21 @@
 
   checkAuth();
 
-  /* ─── DATA ─── */
-  const KEY = 'casamento_data';
+  /* ─── FIREBASE ─── */
+  firebase.initializeApp({
+    apiKey: "AIzaSyCekG4E8QnswyxvmUVHnWHDXOtr6EycIIc",
+    authDomain: "gastos-casamento.firebaseapp.com",
+    projectId: "gastos-casamento",
+    storageBucket: "gastos-casamento.firebasestorage.app",
+    messagingSenderId: "610494962609",
+    appId: "1:610494962609:web:e2f874e4a9cae5619dfb90"
+  });
+  const db  = firebase.firestore();
+  const WED = db.collection('wedding').doc('main');
+  let _data = {};
+
+  function load() { return _data; }
+  function save(d) { _data = d; WED.set(d).catch(console.error); }
 
   const CATS = {
     venue:       { label:'Espaço / Salão',        color:'#B8935A', bg:'#F5EDD8' },
@@ -648,10 +663,6 @@
     other:       { label:'Outros',                  color:'#909090', bg:'#EBEBEB' },
   };
 
-  function load() {
-    try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
-  }
-  function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 
   function fmt(v) {
     return 'R$ ' + (v||0).toLocaleString('pt-BR', { minimumFractionDigits:2, maximumFractionDigits:2 });
@@ -833,8 +844,11 @@
     if (e.target === this) closeBudgetModal();
   });
 
-  // Init
-  render();
+  // Init — escuta mudanças em tempo real
+  WED.onSnapshot(snap => {
+    _data = snap.exists ? snap.data() : {};
+    render();
+  });
 </script>
 </body>
 </html>
