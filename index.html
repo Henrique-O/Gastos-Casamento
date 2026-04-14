@@ -636,20 +636,30 @@
   checkAuth();
 
   /* ─── FIREBASE ─── */
-  firebase.initializeApp({
-    apiKey: "AIzaSyCekG4E8QnswyxvmUVHnWHDXOtr6EycIIc",
-    authDomain: "gastos-casamento.firebaseapp.com",
-    projectId: "gastos-casamento",
-    storageBucket: "gastos-casamento.firebasestorage.app",
-    messagingSenderId: "610494962609",
-    appId: "1:610494962609:web:e2f874e4a9cae5619dfb90"
-  });
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey: "AIzaSyCekG4E8QnswyxvmUVHnWHDXOtr6EycIIc",
+      authDomain: "gastos-casamento.firebaseapp.com",
+      projectId: "gastos-casamento",
+      storageBucket: "gastos-casamento.firebasestorage.app",
+      messagingSenderId: "610494962609",
+      appId: "1:610494962609:web:e2f874e4a9cae5619dfb90"
+    });
+  }
   const db  = firebase.firestore();
   const WED = db.collection('wedding').doc('main');
   let _data = {};
 
   function load() { return _data; }
-  function save(d) { _data = d; WED.set(d).catch(console.error); }
+  function save(d) {
+    _data = d;
+    WED.set(d).then(() => {
+      console.log('✅ Dados salvos no Firebase');
+    }).catch(err => {
+      console.error('❌ Erro Firebase:', err);
+      alert('Erro ao salvar: ' + err.message + '\n\nCódigo: ' + err.code);
+    });
+  }
 
   const CATS = {
     venue:       { label:'Espaço / Salão',        color:'#B8935A', bg:'#F5EDD8' },
