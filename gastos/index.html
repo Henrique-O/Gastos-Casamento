@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gastos — Nosso Casamento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Infant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:        #FDFAF5;
+      --bg-card:   #FFFFFF;
+      --bg-accent: #F7F2EA;
+      --beige:     #EAE0CE;
+      --beige-dk:  #C9B59A;
+      --gold:      #B8935A;
+      --gold-lt:   #E8D5A3;
+      --gold-dk:   #957040;
+      --text:      #2A1A0E;
+      --text-2:    #6B5040;
+      --text-3:    #9C8570;
+      --rose:      #C97080;
+      --rose-lt:   #F0C8D0;
+      --green:     #7A9E7E;
+      --green-lt:  #C8E0CA;
+      --red:       #C05050;
+      --red-lt:    #FAE0E0;
+      --border:    #EAE0D0;
+      --shadow:    0 2px 16px rgba(180,140,80,.09);
+      --shadow-lg: 0 8px 40px rgba(180,140,80,.14);
+      --r:  16px;
+      --r2: 10px;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position:sticky; top:0; z-index:100;
+      background: rgba(253,250,245,.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      height:62px; padding:0 32px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .nav-logo {
+      font-family:'Great Vibes', cursive;
+      font-size:26px; color:var(--gold); letter-spacing:.5px;
+    }
+    .nav-links { display:flex; gap:4px; list-style:none; }
+    .nav-links a {
+      text-decoration:none; color:var(--text-2);
+      font-size:14px; font-weight:500;
+      padding:7px 16px; border-radius:8px;
+      transition:background 180ms, color 180ms;
+    }
+    .nav-links a:hover { background:var(--bg-accent); color:var(--text); }
+    .nav-links a.active { background:var(--gold-lt); color:var(--gold-dk); font-weight:600; }
+
+    /* ─── MAIN ─── */
+    main { max-width:900px; margin:0 auto; padding:40px 24px 100px; }
+
+    /* ─── PAGE HEADER ─── */
+    .page-header {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      margin-bottom:32px;
+    }
+    .page-title {
+      font-family:'Cormorant Infant', serif;
+      font-size:38px; font-weight:300; color:var(--text);
+    }
+    .page-eyebrow {
+      font-family:'Great Vibes', cursive;
+      font-size:18px; color:var(--rose); margin-bottom:2px;
+    }
+    .btn-add {
+      display:inline-flex; align-items:center; gap:8px;
+      height:44px; padding:0 22px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-dk));
+      color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter', sans-serif;
+      font-size:14px; font-weight:600;
+      cursor:pointer;
+      box-shadow:0 4px 14px rgba(184,147,90,.3);
+      transition:opacity 150ms, transform 150ms, box-shadow 150ms;
+    }
+    .btn-add:hover { opacity:.88; transform:translateY(-1px); box-shadow:0 6px 18px rgba(184,147,90,.35); }
+    .btn-add:active { transform:translateY(0); }
+
+    /* ─── QUICK STATS ─── */
+    .stats-row {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:16px;
+      margin-bottom:28px;
+    }
+    .stat-chip {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:var(--r2);
+      padding:16px 18px;
+      box-shadow:var(--shadow);
+    }
+    .stat-chip-lbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-3); margin-bottom:6px; }
+    .stat-chip-val {
+      font-family:'Cormorant Infant', serif;
+      font-size:24px; font-weight:500; color:var(--text);
+    }
+    .stat-chip-val.rose { color:var(--rose); }
+    .stat-chip-val.green { color:var(--green); }
+
+    /* ─── FILTERS ─── */
+    .filters {
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-bottom:20px;
+    }
+    .filter-select {
+      height:38px; padding:0 12px;
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:var(--r2);
+      font-family:'Inter', sans-serif;
+      font-size:13px; color:var(--text-2);
+      cursor:pointer; outline:none;
+      transition:border-color 150ms;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C8570' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 10px center;
+      padding-right:30px;
+    }
+    .filter-select:focus { border-color:var(--gold); }
+
+    .search-input {
+      flex:1; min-width:180px; height:38px; padding:0 13px;
+      background:var(--bg-card);
+      border:1.5px solid var(--border);
+      border-radius:var(--r2);
+      font-family:'Inter', sans-serif;
+      font-size:13px; color:var(--text);
+      outline:none;
+      transition:border-color 150ms;
+    }
+    .search-input:focus { border-color:var(--gold); }
+    .search-input::placeholder { color:var(--text-3); }
+
+    /* ─── TABLE / LIST ─── */
+    .exp-table {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .exp-table-header {
+      display:grid;
+      grid-template-columns: 36px 1fr 140px 100px 90px 70px 80px;
+      gap:12px; align-items:center;
+      padding:12px 18px;
+      background:var(--bg-accent);
+      border-bottom:1px solid var(--border);
+    }
+    .th {
+      font-size:11px; font-weight:600;
+      text-transform:uppercase; letter-spacing:1px;
+      color:var(--text-3);
+    }
+    .th.right { text-align:right; }
+    .th.center { text-align:center; }
+
+    .exp-row {
+      display:grid;
+      grid-template-columns: 36px 1fr 140px 100px 90px 70px 80px;
+      gap:12px; align-items:center;
+      padding:13px 18px;
+      border-bottom:1px solid var(--border);
+      transition:background 150ms;
+    }
+    .exp-row:last-child { border-bottom:none; }
+    .exp-row:hover { background:var(--bg-accent); }
+
+    .exp-row-icon {
+      width:32px; height:32px; border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .exp-row-name { font-size:14px; font-weight:500; color:var(--text); }
+    .exp-row-note { font-size:11px; color:var(--text-3); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .exp-row-cat {
+      font-size:12px; color:var(--text-2);
+      display:flex; align-items:center; gap:6px;
+    }
+    .exp-row-cat-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .exp-row-date { font-size:13px; color:var(--text-3); }
+    .exp-row-amount {
+      font-family:'Cormorant Infant', serif;
+      font-size:16px; font-weight:500; color:var(--text);
+      text-align:right;
+    }
+
+    /* STATUS BADGE */
+    .badge {
+      display:inline-flex; align-items:center;
+      padding:3px 10px; border-radius:20px;
+      font-size:11px; font-weight:600;
+      cursor:pointer;
+      border:none;
+      transition:opacity 150ms;
+    }
+    .badge:hover { opacity:.8; }
+    .badge.paid { background:var(--green-lt); color:var(--green); }
+    .badge.unpaid { background:var(--beige); color:var(--beige-dk); }
+
+    /* ACTIONS */
+    .row-actions { display:flex; gap:4px; justify-content:flex-end; }
+    .action-btn {
+      width:30px; height:30px; border-radius:7px;
+      display:flex; align-items:center; justify-content:center;
+      background:none; border:none; cursor:pointer;
+      color:var(--text-3);
+      transition:background 150ms, color 150ms;
+    }
+    .action-btn:hover { background:var(--bg-accent); color:var(--text-2); }
+    .action-btn.delete:hover { background:var(--red-lt); color:var(--red); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align:center; padding:60px 20px;
+      color:var(--text-3);
+    }
+    .empty-state svg { opacity:.3; margin-bottom:16px; }
+    .empty-state h3 {
+      font-family:'Cormorant Infant', serif;
+      font-size:22px; font-weight:400;
+      color:var(--text-2); margin-bottom:8px;
+    }
+    .empty-state p { font-size:14px; line-height:1.6; }
+
+    /* TOTAL ROW */
+    .total-row {
+      display:flex; justify-content:flex-end;
+      align-items:center; gap:16px;
+      padding:14px 18px;
+      background:var(--bg-accent);
+      border-top:1px solid var(--border);
+    }
+    .total-lbl { font-size:13px; font-weight:500; color:var(--text-2); }
+    .total-val {
+      font-family:'Cormorant Infant', serif;
+      font-size:22px; font-weight:600; color:var(--gold);
+    }
+
+    /* ─── MODAL ─── */
+    .overlay {
+      position:fixed; inset:0;
+      background:rgba(30,15,5,.38);
+      backdrop-filter:blur(5px);
+      z-index:200;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none;
+      transition:opacity 200ms;
+    }
+    .overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:var(--bg-card);
+      border-radius:var(--r);
+      padding:32px 28px;
+      width:100%; max-width:460px;
+      box-shadow:var(--shadow-lg);
+      transform:scale(.96) translateY(6px);
+      transition:transform 220ms cubic-bezier(.34,1.56,.64,1);
+      max-height:90vh; overflow-y:auto;
+    }
+    .overlay.open .modal { transform:scale(1) translateY(0); }
+    .modal-title {
+      font-family:'Cormorant Infant', serif;
+      font-size:24px; font-weight:500;
+      color:var(--text); margin-bottom:24px;
+    }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    .form-group { margin-bottom:16px; }
+    .form-label {
+      display:block; font-size:11px; font-weight:600;
+      text-transform:uppercase; letter-spacing:.9px;
+      color:var(--text-2); margin-bottom:6px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width:100%; height:44px; padding:0 13px;
+      background:var(--bg-accent);
+      border:1.5px solid var(--border);
+      border-radius:var(--r2);
+      font-family:'Inter', sans-serif;
+      font-size:15px; color:var(--text);
+      outline:none;
+      transition:border-color 150ms, background 150ms;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color:var(--gold); background:#fff;
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color:var(--text-3); }
+    .form-select { appearance:none; cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C8570' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; padding-right:32px;
+    }
+    .form-textarea { height:80px; padding:10px 13px; resize:vertical; }
+
+    /* CHECKBOX TOGGLE */
+    .toggle-wrap {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px;
+      background:var(--bg-accent);
+      border:1.5px solid var(--border);
+      border-radius:var(--r2);
+      cursor:pointer;
+    }
+    .toggle-wrap input { display:none; }
+    .toggle-track {
+      width:38px; height:22px; border-radius:11px;
+      background:var(--beige);
+      position:relative; flex-shrink:0;
+      transition:background 200ms;
+    }
+    .toggle-thumb {
+      position:absolute; top:3px; left:3px;
+      width:16px; height:16px; border-radius:50%;
+      background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2);
+      transition:left 200ms cubic-bezier(.34,1.56,.64,1);
+    }
+    .toggle-wrap.checked .toggle-track { background:var(--green); }
+    .toggle-wrap.checked .toggle-thumb { left:19px; }
+    .toggle-lbl { font-size:14px; font-weight:500; color:var(--text-2); }
+
+    .modal-actions { display:flex; gap:10px; margin-top:22px; }
+    .btn-primary {
+      flex:1; height:44px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-dk));
+      color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter', sans-serif; font-size:14px; font-weight:600;
+      cursor:pointer;
+      transition:opacity 150ms, transform 150ms;
+    }
+    .btn-primary:hover { opacity:.88; transform:translateY(-1px); }
+    .btn-secondary {
+      height:44px; padding:0 18px;
+      background:var(--bg-accent); color:var(--text-2);
+      border:1.5px solid var(--border); border-radius:var(--r2);
+      font-family:'Inter', sans-serif; font-size:14px; font-weight:500;
+      cursor:pointer; transition:background 150ms;
+    }
+    .btn-secondary:hover { background:var(--beige); }
+
+    /* CONFIRM DIALOG */
+    .confirm-overlay {
+      position:fixed; inset:0;
+      background:rgba(30,15,5,.45);
+      backdrop-filter:blur(4px);
+      z-index:300;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 180ms;
+    }
+    .confirm-overlay.open { opacity:1; pointer-events:all; }
+    .confirm-box {
+      background:var(--bg-card); border-radius:var(--r);
+      padding:28px 24px; max-width:340px; width:100%;
+      box-shadow:var(--shadow-lg);
+      transform:scale(.97); transition:transform 180ms;
+    }
+    .confirm-overlay.open .confirm-box { transform:scale(1); }
+    .confirm-title { font-family:'Cormorant Infant',serif; font-size:20px; font-weight:500; margin-bottom:10px; }
+    .confirm-text { font-size:14px; color:var(--text-2); line-height:1.5; margin-bottom:20px; }
+    .confirm-actions { display:flex; gap:10px; }
+    .btn-danger {
+      flex:1; height:40px;
+      background:var(--red); color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+      cursor:pointer; transition:opacity 150ms;
+    }
+    .btn-danger:hover { opacity:.85; }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+      background:var(--text); color:#fff;
+      padding:12px 22px; border-radius:10px;
+      font-size:14px; font-weight:500;
+      box-shadow:0 4px 20px rgba(0,0,0,.2);
+      opacity:0; pointer-events:none;
+      transition:opacity 200ms, transform 200ms;
+      white-space:nowrap; z-index:400;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width:768px) {
+      .exp-table-header { display:none; }
+      .exp-row {
+        grid-template-columns:36px 1fr auto;
+        grid-template-rows:auto auto;
+      }
+      .exp-row > :nth-child(3),
+      .exp-row > :nth-child(4) { display:none; }
+      .exp-row > :nth-child(6) { grid-column:2; }
+      .stats-row { grid-template-columns:1fr 1fr; }
+      .stats-row > :last-child { grid-column:span 2; }
+      nav { padding:0 16px; }
+      main { padding:24px 16px 80px; }
+      .page-header { flex-direction:column; align-items:flex-start; gap:16px; }
+      .form-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Nosso Casamento</span>
+  <ul class="nav-links">
+    <li><a href="../index.html">Visão Geral</a></li>
+    <li><a href="index.html" class="active">Gastos</a></li>
+  </ul>
+</nav>
+
+<main>
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">organização</p>
+      <h1 class="page-title">Controle de Gastos</h1>
+    </div>
+    <button class="btn-add" onclick="openAdd()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar Gasto
+    </button>
+  </div>
+
+  <!-- QUICK STATS -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-chip">
+      <p class="stat-chip-lbl">Total de Itens</p>
+      <p class="stat-chip-val" id="statCount">0</p>
+    </div>
+    <div class="stat-chip">
+      <p class="stat-chip-lbl">Total Gasto</p>
+      <p class="stat-chip-val rose" id="statTotal">R$ 0,00</p>
+    </div>
+    <div class="stat-chip">
+      <p class="stat-chip-lbl">A Pagar</p>
+      <p class="stat-chip-val green" id="statUnpaid">R$ 0,00</p>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar gasto..." oninput="renderList()">
+    <select class="filter-select" id="filterCat" onchange="renderList()">
+      <option value="">Todas as categorias</option>
+    </select>
+    <select class="filter-select" id="filterStatus" onchange="renderList()">
+      <option value="">Todos os status</option>
+      <option value="paid">Pago</option>
+      <option value="unpaid">A pagar</option>
+    </select>
+    <select class="filter-select" id="sortBy" onchange="renderList()">
+      <option value="date-desc">Mais recentes</option>
+      <option value="date-asc">Mais antigos</option>
+      <option value="value-desc">Maior valor</option>
+      <option value="value-asc">Menor valor</option>
+      <option value="name-asc">Nome A–Z</option>
+    </select>
+  </div>
+
+  <!-- EXPENSE TABLE -->
+  <div class="exp-table">
+    <div class="exp-table-header">
+      <div></div>
+      <div class="th">Descrição</div>
+      <div class="th">Categoria</div>
+      <div class="th">Data</div>
+      <div class="th right">Valor</div>
+      <div class="th center">Status</div>
+      <div class="th"></div>
+    </div>
+    <div id="expList"></div>
+    <div class="total-row" id="totalRow" style="display:none">
+      <span class="total-lbl">Total filtrado:</span>
+      <span class="total-val" id="filteredTotal">R$ 0,00</span>
+    </div>
+  </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <p class="modal-title" id="modalTitle">Adicionar Gasto</p>
+    <input type="hidden" id="editId">
+
+    <div class="form-group">
+      <label class="form-label" for="fName">Descrição *</label>
+      <input class="form-input" id="fName" type="text" placeholder="Ex: Buffet para 150 pessoas">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="fValue">Valor (R$) *</label>
+        <input class="form-input" id="fValue" type="number" min="0" step="0.01" placeholder="0,00">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="fDate">Data</label>
+        <input class="form-input" id="fDate" type="date">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="fCat">Categoria</label>
+      <select class="form-select" id="fCat"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="fNotes">Observações</label>
+      <textarea class="form-textarea" id="fNotes" placeholder="Fornecedor, contato, detalhes..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="toggle-wrap" id="paidToggle" onclick="togglePaid()">
+        <input type="checkbox" id="fPaid">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span class="toggle-lbl">Já foi pago</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveExpense()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p class="confirm-title">Excluir gasto?</p>
+    <p class="confirm-text">Esta ação não pode ser desfeita. O item será removido permanentemente.</p>
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-danger" onclick="confirmDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ─── DATA ─── */
+  const KEY = 'casamento_data';
+
+  const CATS = {
+    venue:       { label:'Espaço / Salão',        color:'#B8935A', bg:'#F5EDD8' },
+    catering:    { label:'Buffet / Gastronomia',   color:'#C07A4A', bg:'#F5E4D8' },
+    photo:       { label:'Fotografia / Vídeo',     color:'#6B8FA0', bg:'#DCE8EE' },
+    flowers:     { label:'Flores / Decoração',     color:'#7A9E7E', bg:'#D8EED8' },
+    clothing:    { label:'Vestido / Traje',         color:'#C97080', bg:'#F5DDE2' },
+    music:       { label:'Música / DJ',             color:'#8878B5', bg:'#E4E2F5' },
+    invitations: { label:'Convites / Papelaria',   color:'#9A8060', bg:'#EDE6DA' },
+    honeymoon:   { label:'Lua de Mel',              color:'#C46060', bg:'#F5DADA' },
+    other:       { label:'Outros',                  color:'#909090', bg:'#EBEBEB' },
+  };
+
+  const CAT_ICONS = {
+    venue:       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    catering:    '<path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>',
+    photo:       '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="4"/><path d="M8 5V3h8v2"/>',
+    flowers:     '<circle cx="12" cy="12" r="3"/><path d="M12 2a4 4 0 0 1 4 4c0 1.5-.8 2.8-2 3.5"/><path d="M12 2a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.5"/><path d="M12 22a4 4 0 0 0 4-4c0-1.5-.8-2.8-2-3.5"/><path d="M12 22a4 4 0 0 1-4-4c0-1.5.8-2.8 2-3.5"/>',
+    clothing:    '<path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>',
+    music:       '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+    invitations: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+    honeymoon:   '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+    other:       '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  };
+
+  function load()    { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
+  function save(d)   { localStorage.setItem(KEY, JSON.stringify(d)); }
+  function uuid()    { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+  function fmt(v)    { return 'R$ ' + (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtDate(s){ if(!s) return '—'; const d=new Date(s+'T12:00:00'); return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}); }
+
+  /* ─── INIT SELECTS ─── */
+  function initSelects() {
+    // filter
+    const fc = document.getElementById('filterCat');
+    fc.innerHTML = '<option value="">Todas as categorias</option>' +
+      Object.entries(CATS).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+    // form
+    const sc = document.getElementById('fCat');
+    sc.innerHTML = Object.entries(CATS).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+  }
+
+  /* ─── RENDER ─── */
+  function getFilteredExpenses() {
+    const d        = load();
+    const expenses = d.expenses || [];
+    const q        = document.getElementById('searchInput').value.toLowerCase();
+    const catF     = document.getElementById('filterCat').value;
+    const statusF  = document.getElementById('filterStatus').value;
+    const sortBy   = document.getElementById('sortBy').value;
+
+    let list = expenses.filter(e => {
+      if (q && !e.name.toLowerCase().includes(q) && !(e.notes||'').toLowerCase().includes(q)) return false;
+      if (catF && e.category !== catF) return false;
+      if (statusF === 'paid'   && !e.paid)  return false;
+      if (statusF === 'unpaid' && e.paid)   return false;
+      return true;
+    });
+
+    list.sort((a,b) => {
+      if (sortBy === 'date-desc') return (b.date||'').localeCompare(a.date||'');
+      if (sortBy === 'date-asc')  return (a.date||'').localeCompare(b.date||'');
+      if (sortBy === 'value-desc') return (parseFloat(b.value)||0) - (parseFloat(a.value)||0);
+      if (sortBy === 'value-asc')  return (parseFloat(a.value)||0) - (parseFloat(b.value)||0);
+      if (sortBy === 'name-asc')   return a.name.localeCompare(b.name, 'pt-BR');
+      return 0;
+    });
+    return list;
+  }
+
+  function renderList() {
+    const d        = load();
+    const expenses = d.expenses || [];
+    const list     = getFilteredExpenses();
+
+    // Stats (from all expenses, not filtered)
+    const totalAll   = expenses.reduce((s,e) => s+(parseFloat(e.value)||0), 0);
+    const unpaidAll  = expenses.filter(e=>!e.paid).reduce((s,e) => s+(parseFloat(e.value)||0), 0);
+    document.getElementById('statCount').textContent  = expenses.length;
+    document.getElementById('statTotal').textContent  = fmt(totalAll);
+    document.getElementById('statUnpaid').textContent = fmt(unpaidAll);
+
+    // Table
+    const totalRow   = document.getElementById('totalRow');
+    const expListEl  = document.getElementById('expList');
+
+    if (list.length === 0) {
+      expListEl.innerHTML = `<div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+        <h3>${expenses.length === 0 ? 'Nenhum gasto ainda' : 'Nenhum resultado encontrado'}</h3>
+        <p>${expenses.length === 0 ? 'Clique em "Adicionar Gasto" para começar<br>a registrar os gastos do seu casamento.' : 'Tente ajustar os filtros ou a busca.'}</p>
+      </div>`;
+      totalRow.style.display = 'none';
+    } else {
+      const filteredTotal = list.reduce((s,e) => s+(parseFloat(e.value)||0), 0);
+      expListEl.innerHTML = list.map(e => {
+        const cat = CATS[e.category] || CATS.other;
+        return `<div class="exp-row" id="row-${e.id}">
+          <div class="exp-row-icon" style="background:${cat.bg}">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="${cat.color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${CAT_ICONS[e.category]||CAT_ICONS.other}</svg>
+          </div>
+          <div>
+            <p class="exp-row-name">${e.name}</p>
+            ${e.notes ? `<p class="exp-row-note">${e.notes}</p>` : ''}
+          </div>
+          <div class="exp-row-cat">
+            <div class="exp-row-cat-dot" style="background:${cat.color}"></div>
+            ${cat.label}
+          </div>
+          <div class="exp-row-date">${fmtDate(e.date)}</div>
+          <div class="exp-row-amount">${fmt(parseFloat(e.value)||0)}</div>
+          <div style="text-align:center">
+            <button class="badge ${e.paid?'paid':'unpaid'}" onclick="toggleStatus('${e.id}')" title="${e.paid?'Marcar como a pagar':'Marcar como pago'}">
+              ${e.paid ? 'Pago' : 'A pagar'}
+            </button>
+          </div>
+          <div class="row-actions">
+            <button class="action-btn" onclick="openEdit('${e.id}')" title="Editar" aria-label="Editar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="action-btn delete" onclick="openDelete('${e.id}')" title="Excluir" aria-label="Excluir">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('filteredTotal').textContent = fmt(filteredTotal);
+      totalRow.style.display = list.length > 0 ? 'flex' : 'none';
+    }
+  }
+
+  /* ─── TOGGLE STATUS ─── */
+  function toggleStatus(id) {
+    const d = load();
+    const e = (d.expenses||[]).find(x => x.id === id);
+    if (e) { e.paid = !e.paid; save(d); renderList(); showToast(e.paid ? 'Marcado como pago ✓' : 'Marcado como a pagar'); }
+  }
+
+  /* ─── PAID TOGGLE ─── */
+  function togglePaid() {
+    const wrap = document.getElementById('paidToggle');
+    const chk  = document.getElementById('fPaid');
+    chk.checked = !chk.checked;
+    wrap.classList.toggle('checked', chk.checked);
+  }
+
+  /* ─── FORM MODAL ─── */
+  function openAdd() {
+    document.getElementById('modalTitle').textContent = 'Adicionar Gasto';
+    document.getElementById('editId').value = '';
+    document.getElementById('fName').value  = '';
+    document.getElementById('fValue').value = '';
+    document.getElementById('fDate').value  = new Date().toISOString().slice(0,10);
+    document.getElementById('fCat').value   = 'venue';
+    document.getElementById('fNotes').value = '';
+    document.getElementById('fPaid').checked = false;
+    document.getElementById('paidToggle').classList.remove('checked');
+    document.getElementById('formOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('fName').focus(), 220);
+  }
+
+  function openEdit(id) {
+    const d = load();
+    const e = (d.expenses||[]).find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('modalTitle').textContent = 'Editar Gasto';
+    document.getElementById('editId').value  = e.id;
+    document.getElementById('fName').value   = e.name;
+    document.getElementById('fValue').value  = e.value;
+    document.getElementById('fDate').value   = e.date || '';
+    document.getElementById('fCat').value    = e.category || 'other';
+    document.getElementById('fNotes').value  = e.notes || '';
+    document.getElementById('fPaid').checked = !!e.paid;
+    document.getElementById('paidToggle').classList.toggle('checked', !!e.paid);
+    document.getElementById('formOverlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('formOverlay').classList.remove('open');
+  }
+
+  function saveExpense() {
+    const name  = document.getElementById('fName').value.trim();
+    const value = parseFloat(document.getElementById('fValue').value);
+    if (!name)       { shake('fName');  return; }
+    if (isNaN(value) || value < 0) { shake('fValue'); return; }
+
+    const d   = load();
+    d.expenses = d.expenses || [];
+    const id   = document.getElementById('editId').value;
+
+    const entry = {
+      id:       id || uuid(),
+      name,
+      value,
+      date:     document.getElementById('fDate').value,
+      category: document.getElementById('fCat').value,
+      notes:    document.getElementById('fNotes').value.trim(),
+      paid:     document.getElementById('fPaid').checked,
+    };
+
+    if (id) {
+      const idx = d.expenses.findIndex(e => e.id === id);
+      if (idx > -1) d.expenses[idx] = entry;
+    } else {
+      d.expenses.push(entry);
+    }
+
+    save(d);
+    closeModal();
+    renderList();
+    showToast(id ? 'Gasto atualizado ✓' : 'Gasto adicionado ✓');
+  }
+
+  function shake(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = 'var(--red)';
+    el.style.animation   = 'none';
+    el.offsetHeight;
+    el.focus();
+    setTimeout(() => { el.style.borderColor = ''; }, 1200);
+  }
+
+  /* ─── DELETE ─── */
+  let pendingDeleteId = null;
+  function openDelete(id)  { pendingDeleteId = id; document.getElementById('confirmOverlay').classList.add('open'); }
+  function closeConfirm()  { document.getElementById('confirmOverlay').classList.remove('open'); pendingDeleteId = null; }
+  function confirmDelete() {
+    if (!pendingDeleteId) return;
+    const d = load();
+    d.expenses = (d.expenses||[]).filter(e => e.id !== pendingDeleteId);
+    save(d);
+    closeConfirm();
+    renderList();
+    showToast('Gasto excluído');
+  }
+
+  /* ─── TOAST ─── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  /* ─── CLOSE ON OVERLAY CLICK ─── */
+  document.getElementById('formOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('confirmOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+
+  /* ─── KEYBOARD ESC ─── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); }
+  });
+
+  /* ─── INIT ─── */
+  initSelects();
+  renderList();
+</script>
+</body>
+</html>
