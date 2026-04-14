@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convidados — Nosso Casamento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Infant:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --bg:        #FDFAF5;
+      --bg-card:   #FFFFFF;
+      --bg-accent: #F7F2EA;
+      --beige:     #EAE0CE;
+      --beige-dk:  #C9B59A;
+      --gold:      #B8935A;
+      --gold-lt:   #E8D5A3;
+      --gold-dk:   #957040;
+      --text:      #2A1A0E;
+      --text-2:    #6B5040;
+      --text-3:    #9C8570;
+      --rose:      #C97080;
+      --rose-lt:   #F0C8D0;
+      --green:     #7A9E7E;
+      --green-lt:  #C8E0CA;
+      --blue:      #6B8FA0;
+      --blue-lt:   #DCE8EE;
+      --purple:    #8878B5;
+      --purple-lt: #E4E2F5;
+      --red:       #C05050;
+      --red-lt:    #FAE0E0;
+      --amber:     #C07A4A;
+      --amber-lt:  #F5E4D8;
+      --border:    #EAE0D0;
+      --shadow:    0 2px 16px rgba(180,140,80,.09);
+      --shadow-lg: 0 8px 40px rgba(180,140,80,.14);
+      --r:  16px;
+      --r2: 10px;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+    /* NAV */
+    nav {
+      position:sticky; top:0; z-index:100;
+      background:rgba(253,250,245,.96); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      height:62px; padding:0 32px;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .nav-logo { font-family:'Great Vibes',cursive; font-size:26px; color:var(--gold); }
+    .nav-links { display:flex; gap:4px; list-style:none; }
+    .nav-links a {
+      text-decoration:none; color:var(--text-2);
+      font-size:14px; font-weight:500;
+      padding:7px 16px; border-radius:8px;
+      transition:background 180ms, color 180ms;
+    }
+    .nav-links a:hover { background:var(--bg-accent); color:var(--text); }
+    .nav-links a.active { background:var(--gold-lt); color:var(--gold-dk); font-weight:600; }
+    .nav-user { display:flex; align-items:center; gap:12px; }
+    .nav-user-name { font-size:13px; color:var(--text-2); font-weight:500; }
+    .btn-logout {
+      height:34px; padding:0 14px;
+      background:none; border:1.5px solid var(--border);
+      border-radius:8px; font-family:'Inter',sans-serif;
+      font-size:13px; color:var(--text-3); cursor:pointer;
+      transition:background 150ms;
+    }
+    .btn-logout:hover { background:var(--bg-accent); }
+
+    /* MAIN */
+    main { max-width:1080px; margin:0 auto; padding:40px 24px 100px; }
+
+    /* PAGE HEADER */
+    .page-header {
+      display:flex; align-items:flex-end; justify-content:space-between;
+      margin-bottom:32px;
+    }
+    .page-eyebrow { font-family:'Great Vibes',cursive; font-size:18px; color:var(--rose); margin-bottom:2px; }
+    .page-title { font-family:'Cormorant Infant',serif; font-size:38px; font-weight:300; }
+    .btn-add {
+      display:inline-flex; align-items:center; gap:8px;
+      height:44px; padding:0 22px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-dk));
+      color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+      cursor:pointer;
+      box-shadow:0 4px 14px rgba(184,147,90,.3);
+      transition:opacity 150ms, transform 150ms;
+    }
+    .btn-add:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* STATS */
+    .stats-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+      margin-bottom:16px;
+    }
+    .stat-card {
+      background:var(--bg-card); border:1px solid var(--border);
+      border-radius:var(--r2); padding:18px 16px;
+      box-shadow:var(--shadow); position:relative; overflow:hidden;
+    }
+    .stat-card::after {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    }
+    .stat-card.total::after  { background:linear-gradient(90deg,var(--gold),var(--gold-lt)); }
+    .stat-card.henrique::after { background:linear-gradient(90deg,var(--blue),var(--blue-lt)); }
+    .stat-card.rafa::after   { background:linear-gradient(90deg,var(--rose),var(--rose-lt)); }
+    .stat-card.padrinhos::after { background:linear-gradient(90deg,var(--purple),var(--purple-lt)); }
+    .stat-lbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-3); margin-bottom:6px; }
+    .stat-val { font-family:'Cormorant Infant',serif; font-size:30px; font-weight:500; }
+    .stat-val.gold   { color:var(--gold); }
+    .stat-val.blue   { color:var(--blue); }
+    .stat-val.rose   { color:var(--rose); }
+    .stat-val.purple { color:var(--purple); }
+    .stat-sub { font-size:11px; color:var(--text-3); margin-top:4px; }
+
+    /* STATUS STRIP */
+    .status-strip {
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-bottom:24px;
+    }
+    .status-chip {
+      display:flex; align-items:center; gap:7px;
+      padding:8px 14px; border-radius:20px;
+      font-size:12px; font-weight:600;
+      border:1.5px solid transparent;
+    }
+    .status-chip-dot { width:7px; height:7px; border-radius:50%; }
+    .status-chip.convidar   { background:#EBF5EC; color:var(--green);  border-color:#C8E0CA; }
+    .status-chip.a_decidir  { background:#FFF5E6; color:var(--amber);  border-color:#F5E4D8; }
+    .status-chip.pensar     { background:#FFF0E8; color:#A05A30;        border-color:#F5D5C0; }
+    .status-chip.confirmado { background:#E8F4E8; color:#4A8A50;        border-color:#B8DDB8; }
+    .status-chip.recusou    { background:var(--red-lt); color:var(--red); border-color:#F5C0C0; }
+
+    /* FILTERS */
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+    .search-input {
+      flex:1; min-width:180px; height:38px; padding:0 13px;
+      background:var(--bg-card); border:1.5px solid var(--border);
+      border-radius:var(--r2); font-family:'Inter',sans-serif;
+      font-size:13px; color:var(--text); outline:none;
+      transition:border-color 150ms;
+    }
+    .search-input:focus { border-color:var(--gold); }
+    .search-input::placeholder { color:var(--text-3); }
+    .filter-select {
+      height:38px; padding:0 30px 0 12px;
+      background:var(--bg-card); border:1.5px solid var(--border);
+      border-radius:var(--r2); font-family:'Inter',sans-serif;
+      font-size:13px; color:var(--text-2); cursor:pointer; outline:none;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C8570' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 10px center;
+      transition:border-color 150ms;
+    }
+    .filter-select:focus { border-color:var(--gold); }
+
+    /* TABS (Henrique / Rafaella / Padrinhos) */
+    .side-tabs { display:flex; gap:6px; margin-bottom:20px; }
+    .side-tab {
+      height:36px; padding:0 18px;
+      background:var(--bg-card); border:1.5px solid var(--border);
+      border-radius:20px; font-family:'Inter',sans-serif;
+      font-size:13px; font-weight:500; color:var(--text-2);
+      cursor:pointer; transition:all 150ms;
+    }
+    .side-tab:hover { background:var(--bg-accent); }
+    .side-tab.active.all      { background:var(--gold-lt);   color:var(--gold-dk);   border-color:var(--gold-lt); }
+    .side-tab.active.henrique { background:var(--blue-lt);   color:var(--blue);      border-color:var(--blue-lt); }
+    .side-tab.active.rafa     { background:var(--rose-lt);   color:var(--rose);      border-color:var(--rose-lt); }
+    .side-tab.active.padrinhos{ background:var(--purple-lt); color:var(--purple);    border-color:var(--purple-lt); }
+
+    /* TABLE */
+    .guest-table { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
+    .table-header {
+      display:grid; grid-template-columns:1fr 110px 130px 120px 90px 80px;
+      gap:12px; padding:12px 18px;
+      background:var(--bg-accent); border-bottom:1px solid var(--border);
+    }
+    .th { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-3); }
+    .th.right { text-align:right; }
+    .guest-row {
+      display:grid; grid-template-columns:1fr 110px 130px 120px 90px 80px;
+      gap:12px; align-items:center;
+      padding:12px 18px; border-bottom:1px solid var(--border);
+      transition:background 150ms;
+    }
+    .guest-row:last-child { border-bottom:none; }
+    .guest-row:hover { background:var(--bg-accent); }
+
+    .guest-name { font-size:14px; font-weight:500; color:var(--text); }
+    .guest-notes { font-size:11px; color:var(--text-3); margin-top:2px; }
+    .padrinho-badge {
+      display:inline-flex; align-items:center; gap:4px;
+      font-size:10px; font-weight:600;
+      background:var(--purple-lt); color:var(--purple);
+      padding:2px 8px; border-radius:10px; margin-top:3px;
+    }
+
+    /* SIDE BADGE */
+    .side-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:12px; font-weight:500; padding:3px 10px; border-radius:12px;
+    }
+    .side-badge.henrique { background:var(--blue-lt);   color:var(--blue); }
+    .side-badge.rafaella { background:var(--rose-lt);   color:var(--rose); }
+    .side-badge-dot { width:6px; height:6px; border-radius:50%; }
+
+    /* GROUP BADGE */
+    .group-badge {
+      display:inline-flex; align-items:center; gap:5px;
+      font-size:12px; color:var(--text-2); font-weight:400;
+    }
+    .group-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+    /* STATUS BADGE clickable */
+    .s-badge {
+      display:inline-flex; align-items:center; padding:3px 10px;
+      border-radius:20px; font-size:11px; font-weight:600;
+      cursor:pointer; border:none; transition:opacity 150ms;
+      white-space:nowrap;
+    }
+    .s-badge:hover { opacity:.8; }
+    .s-badge.convidar   { background:#EBF5EC; color:var(--green); }
+    .s-badge.a_decidir  { background:#FFF5E6; color:var(--amber); }
+    .s-badge.pensar     { background:#FFF0E8; color:#A05A30; }
+    .s-badge.confirmado { background:#E8F4E8; color:#4A8A50; }
+    .s-badge.recusou    { background:var(--red-lt); color:var(--red); }
+
+    /* ACTIONS */
+    .row-actions { display:flex; gap:4px; justify-content:flex-end; }
+    .action-btn {
+      width:30px; height:30px; border-radius:7px;
+      display:flex; align-items:center; justify-content:center;
+      background:none; border:none; cursor:pointer; color:var(--text-3);
+      transition:background 150ms, color 150ms;
+    }
+    .action-btn:hover { background:var(--bg-accent); color:var(--text-2); }
+    .action-btn.delete:hover { background:var(--red-lt); color:var(--red); }
+
+    /* EMPTY */
+    .empty-state { text-align:center; padding:60px 20px; color:var(--text-3); }
+    .empty-state svg { opacity:.3; margin-bottom:16px; }
+    .empty-state h3 { font-family:'Cormorant Infant',serif; font-size:22px; font-weight:400; color:var(--text-2); margin-bottom:8px; }
+    .empty-state p { font-size:14px; line-height:1.6; }
+
+    /* TOTAL ROW */
+    .total-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 18px; background:var(--bg-accent); border-top:1px solid var(--border);
+    }
+    .total-lbl { font-size:13px; color:var(--text-2); }
+    .total-val { font-family:'Cormorant Infant',serif; font-size:20px; font-weight:500; color:var(--gold); }
+
+    /* MODAL */
+    .overlay {
+      position:fixed; inset:0; background:rgba(30,15,5,.38);
+      backdrop-filter:blur(5px); z-index:200;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 200ms;
+    }
+    .overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:var(--bg-card); border-radius:var(--r);
+      padding:32px 28px; width:100%; max-width:480px;
+      box-shadow:var(--shadow-lg); max-height:90vh; overflow-y:auto;
+      transform:scale(.96) translateY(6px);
+      transition:transform 220ms cubic-bezier(.34,1.56,.64,1);
+    }
+    .overlay.open .modal { transform:scale(1) translateY(0); }
+    .modal-title { font-family:'Cormorant Infant',serif; font-size:24px; font-weight:500; margin-bottom:24px; }
+    .form-group { margin-bottom:16px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-label { display:block; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.9px; color:var(--text-2); margin-bottom:6px; }
+    .form-input, .form-select, .form-textarea {
+      width:100%; height:44px; padding:0 13px;
+      background:var(--bg-accent); border:1.5px solid var(--border);
+      border-radius:var(--r2); font-family:'Inter',sans-serif;
+      font-size:15px; color:var(--text); outline:none;
+      transition:border-color 150ms, background 150ms;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color:var(--gold); background:#fff; }
+    .form-select {
+      appearance:none; cursor:pointer;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239C8570' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 12px center; padding-right:32px;
+    }
+    .form-textarea { height:70px; padding:10px 13px; resize:vertical; }
+    .form-input::placeholder, .form-textarea::placeholder { color:var(--text-3); }
+
+    /* TOGGLE */
+    .toggle-wrap {
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px; background:var(--bg-accent);
+      border:1.5px solid var(--border); border-radius:var(--r2); cursor:pointer;
+    }
+    .toggle-wrap input { display:none; }
+    .toggle-track { width:38px; height:22px; border-radius:11px; background:var(--beige); position:relative; flex-shrink:0; transition:background 200ms; }
+    .toggle-thumb { position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.2); transition:left 200ms cubic-bezier(.34,1.56,.64,1); }
+    .toggle-wrap.checked .toggle-track { background:var(--purple); }
+    .toggle-wrap.checked .toggle-thumb { left:19px; }
+    .toggle-lbl { font-size:14px; font-weight:500; color:var(--text-2); }
+
+    .modal-actions { display:flex; gap:10px; margin-top:22px; }
+    .btn-primary {
+      flex:1; height:44px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-dk));
+      color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter',sans-serif; font-size:14px; font-weight:600;
+      cursor:pointer; transition:opacity 150ms, transform 150ms;
+    }
+    .btn-primary:hover { opacity:.88; transform:translateY(-1px); }
+    .btn-secondary {
+      height:44px; padding:0 18px; background:var(--bg-accent);
+      color:var(--text-2); border:1.5px solid var(--border);
+      border-radius:var(--r2); font-family:'Inter',sans-serif;
+      font-size:14px; font-weight:500; cursor:pointer; transition:background 150ms;
+    }
+    .btn-secondary:hover { background:var(--beige); }
+
+    /* CONFIRM */
+    .confirm-overlay {
+      position:fixed; inset:0; background:rgba(30,15,5,.45);
+      backdrop-filter:blur(4px); z-index:300;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity 180ms;
+    }
+    .confirm-overlay.open { opacity:1; pointer-events:all; }
+    .confirm-box {
+      background:var(--bg-card); border-radius:var(--r);
+      padding:28px 24px; max-width:340px; width:100%;
+      box-shadow:var(--shadow-lg); transform:scale(.97); transition:transform 180ms;
+    }
+    .confirm-overlay.open .confirm-box { transform:scale(1); }
+    .confirm-title { font-family:'Cormorant Infant',serif; font-size:20px; font-weight:500; margin-bottom:10px; }
+    .confirm-text { font-size:14px; color:var(--text-2); line-height:1.5; margin-bottom:20px; }
+    .confirm-actions { display:flex; gap:10px; }
+    .btn-danger {
+      flex:1; height:40px; background:var(--red); color:#fff; border:none;
+      border-radius:var(--r2); font-family:'Inter',sans-serif;
+      font-size:14px; font-weight:600; cursor:pointer; transition:opacity 150ms;
+    }
+    .btn-danger:hover { opacity:.85; }
+
+    /* TOAST */
+    .toast {
+      position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+      background:var(--text); color:#fff; padding:12px 22px; border-radius:10px;
+      font-size:14px; font-weight:500; box-shadow:0 4px 20px rgba(0,0,0,.2);
+      opacity:0; pointer-events:none; transition:opacity 200ms, transform 200ms;
+      white-space:nowrap; z-index:400;
+    }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* RESPONSIVE */
+    @media (max-width:900px) {
+      .stats-grid { grid-template-columns:repeat(2,1fr); }
+      .table-header { display:none; }
+      .guest-row { grid-template-columns:1fr auto; grid-template-rows:auto auto; gap:6px; }
+      .guest-row > :nth-child(2),
+      .guest-row > :nth-child(3) { display:none; }
+      nav { padding:0 16px; }
+      main { padding:24px 16px 80px; }
+      .page-header { flex-direction:column; align-items:flex-start; gap:16px; }
+      .form-row { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Nosso Casamento</span>
+  <div style="display:flex;align-items:center;gap:16px">
+    <ul class="nav-links">
+      <li><a href="../index.html">Visão Geral</a></li>
+      <li><a href="../gastos/index.html">Gastos</a></li>
+      <li><a href="index.html" class="active">Convidados</a></li>
+    </ul>
+    <div class="nav-user">
+      <span class="nav-user-name" id="navUserName"></span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div>
+      <p class="page-eyebrow">lista de</p>
+      <h1 class="page-title">Convidados</h1>
+    </div>
+    <button class="btn-add" onclick="openAdd()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Adicionar Convidado
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card total">
+      <p class="stat-lbl">Total Geral</p>
+      <p class="stat-val gold" id="statTotal">0</p>
+      <p class="stat-sub" id="statTotalSub">0 confirmados</p>
+    </div>
+    <div class="stat-card henrique">
+      <p class="stat-lbl">Lado Henrique</p>
+      <p class="stat-val blue" id="statHenrique">0</p>
+      <p class="stat-sub" id="statHenriqueSub">convidados</p>
+    </div>
+    <div class="stat-card rafa">
+      <p class="stat-lbl">Lado Rafaella</p>
+      <p class="stat-val rose" id="statRafa">0</p>
+      <p class="stat-sub" id="statRafaSub">convidados</p>
+    </div>
+    <div class="stat-card padrinhos">
+      <p class="stat-lbl">Padrinhos</p>
+      <p class="stat-val purple" id="statPadrinhos">0</p>
+      <p class="stat-sub">na lista de padrinhos</p>
+    </div>
+  </div>
+
+  <!-- STATUS STRIP -->
+  <div class="status-strip" id="statusStrip"></div>
+
+  <!-- TABS -->
+  <div class="side-tabs">
+    <button class="side-tab active all" data-side="" onclick="setSide(this, '')">Todos</button>
+    <button class="side-tab henrique" data-side="henrique" onclick="setSide(this, 'henrique')">
+      Lado Henrique
+    </button>
+    <button class="side-tab rafa" data-side="rafaella" onclick="setSide(this, 'rafaella')">
+      Lado Rafaella
+    </button>
+    <button class="side-tab padrinhos" data-side="padrinhos" onclick="setSide(this, 'padrinhos')">
+      Padrinhos
+    </button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <input class="search-input" id="searchInput" type="text" placeholder="Buscar convidado..." oninput="renderList()">
+    <select class="filter-select" id="filterGroup" onchange="renderList()">
+      <option value="">Todos os grupos</option>
+    </select>
+    <select class="filter-select" id="filterStatus" onchange="renderList()">
+      <option value="">Todos os status</option>
+    </select>
+    <select class="filter-select" id="sortBy" onchange="renderList()">
+      <option value="name-asc">Nome A–Z</option>
+      <option value="side-asc">Por lado</option>
+      <option value="group-asc">Por grupo</option>
+      <option value="status-asc">Por status</option>
+    </select>
+  </div>
+
+  <!-- TABLE -->
+  <div class="guest-table">
+    <div class="table-header">
+      <div class="th">Nome</div>
+      <div class="th">Lado</div>
+      <div class="th">Grupo</div>
+      <div class="th">Status</div>
+      <div class="th"></div>
+      <div class="th"></div>
+    </div>
+    <div id="guestList"></div>
+    <div class="total-row" id="totalRow" style="display:none">
+      <span class="total-lbl" id="totalLbl">0 convidados</span>
+      <span class="total-val" id="filteredTotal">—</span>
+    </div>
+  </div>
+</main>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <p class="modal-title" id="modalTitle">Adicionar Convidado</p>
+    <input type="hidden" id="editId">
+
+    <div class="form-group">
+      <label class="form-label" for="fName">Nome *</label>
+      <input class="form-input" id="fName" type="text" placeholder="Nome completo ou apelido">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="fSide">Lado</label>
+        <select class="form-select" id="fSide">
+          <option value="henrique">Henrique</option>
+          <option value="rafaella">Rafaella</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="fGroup">Grupo</label>
+        <select class="form-select" id="fGroup"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="fStatus">Status</label>
+      <select class="form-select" id="fStatus"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="fNotes">Observações</label>
+      <textarea class="form-textarea" id="fNotes" placeholder="Ex: Acompanhante do João, Muie do Reno..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="toggle-wrap" id="padrinhoToggle" onclick="togglePadrinho()">
+        <input type="checkbox" id="fPadrinho">
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span class="toggle-lbl">Padrinho / Madrinha</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveGuest()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p class="confirm-title">Remover convidado?</p>
+    <p class="confirm-text">Esta ação não pode ser desfeita.</p>
+    <div class="confirm-actions">
+      <button class="btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-danger" onclick="confirmDelete()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  /* ─── AUTH ─── */
+  (function() {
+    const user = sessionStorage.getItem('casamento_auth');
+    if (!user) { window.location.href = '../index.html'; return; }
+    document.getElementById('navUserName').textContent = user;
+  })();
+  function doLogout() { sessionStorage.removeItem('casamento_auth'); window.location.href = '../index.html'; }
+
+  /* ─── FIREBASE ─── */
+  if (!firebase.apps.length) {
+    firebase.initializeApp({
+      apiKey: "AIzaSyCekG4E8QnswyxvmUVHnWHDXOtr6EycIIc",
+      authDomain: "gastos-casamento.firebaseapp.com",
+      projectId: "gastos-casamento",
+      storageBucket: "gastos-casamento.firebasestorage.app",
+      messagingSenderId: "610494962609",
+      appId: "1:610494962609:web:e2f874e4a9cae5619dfb90"
+    });
+  }
+  const db  = firebase.firestore();
+  const WED = db.collection('wedding').doc('main');
+  let _data = {};
+
+  function load() { return _data; }
+  function save(d) {
+    _data = d;
+    WED.set(d).catch(err => { showToast('Erro: ' + err.code); console.error(err); });
+  }
+
+  /* ─── CONSTANTS ─── */
+  const GROUPS = {
+    familia:   { label:'Família',   color:'#B8935A', bg:'#F5EDD8' },
+    trabalho:  { label:'Trabalho',  color:'#6B8FA0', bg:'#DCE8EE' },
+    faculdade: { label:'Faculdade', color:'#7A9E7E', bg:'#D8EED8' },
+    dce:       { label:'DCE',       color:'#8878B5', bg:'#E4E2F5' },
+    amigos:    { label:'Amigos',    color:'#C97080', bg:'#F5DDE2' },
+    outros:    { label:'Outros',    color:'#909090', bg:'#EBEBEB' },
+  };
+
+  const STATUS_LIST = [
+    { key:'convidar',   label:'Convidar',      cls:'convidar' },
+    { key:'a_decidir',  label:'A decidir',     cls:'a_decidir' },
+    { key:'pensar',     label:'Pensar melhor', cls:'pensar' },
+    { key:'confirmado', label:'Confirmado',    cls:'confirmado' },
+    { key:'recusou',    label:'Recusou',       cls:'recusou' },
+  ];
+
+  const STATUS_NEXT = { convidar:'confirmado', a_decidir:'convidar', pensar:'a_decidir', confirmado:'recusou', recusou:'convidar' };
+
+  /* ─── ACTIVE SIDE FILTER ─── */
+  let activeSide = '';
+  function setSide(btn, side) {
+    document.querySelectorAll('.side-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    activeSide = side;
+    renderList();
+  }
+
+  /* ─── INIT SELECTS ─── */
+  function initSelects() {
+    document.getElementById('filterGroup').innerHTML =
+      '<option value="">Todos os grupos</option>' +
+      Object.entries(GROUPS).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+    document.getElementById('filterStatus').innerHTML =
+      '<option value="">Todos os status</option>' +
+      STATUS_LIST.map(s => `<option value="${s.key}">${s.label}</option>`).join('');
+    document.getElementById('fGroup').innerHTML =
+      Object.entries(GROUPS).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+    document.getElementById('fStatus').innerHTML =
+      STATUS_LIST.map(s => `<option value="${s.key}">${s.label}</option>`).join('');
+  }
+
+  /* ─── STATS ─── */
+  function renderStats(guests) {
+    const total = guests.length;
+    const confirmados = guests.filter(g => g.status === 'confirmado').length;
+    const henrique = guests.filter(g => g.side === 'henrique').length;
+    const rafa     = guests.filter(g => g.side === 'rafaella').length;
+    const padrinhos= guests.filter(g => g.isPadrinho).length;
+
+    document.getElementById('statTotal').textContent       = total;
+    document.getElementById('statTotalSub').textContent    = confirmados + ' confirmado' + (confirmados !== 1 ? 's' : '');
+    document.getElementById('statHenrique').textContent    = henrique;
+    document.getElementById('statHenriqueSub').textContent = henrique + ' convidado' + (henrique !== 1 ? 's' : '');
+    document.getElementById('statRafa').textContent        = rafa;
+    document.getElementById('statRafaSub').textContent     = rafa + ' convidado' + (rafa !== 1 ? 's' : '');
+    document.getElementById('statPadrinhos').textContent   = padrinhos;
+
+    // Status strip
+    const strip = document.getElementById('statusStrip');
+    strip.innerHTML = STATUS_LIST.map(s => {
+      const count = guests.filter(g => g.status === s.key).length;
+      if (count === 0) return '';
+      return `<div class="status-chip ${s.cls}">
+        <span>${s.label}</span>
+        <strong>${count}</strong>
+      </div>`;
+    }).join('');
+  }
+
+  /* ─── RENDER LIST ─── */
+  function renderList() {
+    const d      = load();
+    const guests = d.guests || [];
+    const q      = document.getElementById('searchInput').value.toLowerCase();
+    const grpF   = document.getElementById('filterGroup').value;
+    const stF    = document.getElementById('filterStatus').value;
+    const sortBy = document.getElementById('sortBy').value;
+
+    renderStats(guests);
+
+    let list = guests.filter(g => {
+      if (q && !g.name.toLowerCase().includes(q) && !(g.notes||'').toLowerCase().includes(q)) return false;
+      if (grpF && g.group !== grpF) return false;
+      if (stF  && g.status !== stF)  return false;
+      if (activeSide === 'padrinhos' && !g.isPadrinho) return false;
+      if (activeSide && activeSide !== 'padrinhos' && g.side !== activeSide) return false;
+      return true;
+    });
+
+    list.sort((a, b) => {
+      if (sortBy === 'name-asc')   return a.name.localeCompare(b.name, 'pt-BR');
+      if (sortBy === 'side-asc')   return a.side.localeCompare(b.side);
+      if (sortBy === 'group-asc')  return a.group.localeCompare(b.group);
+      if (sortBy === 'status-asc') return a.status.localeCompare(b.status);
+      return 0;
+    });
+
+    const el       = document.getElementById('guestList');
+    const totalRow = document.getElementById('totalRow');
+
+    if (list.length === 0) {
+      el.innerHTML = `<div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <h3>${guests.length === 0 ? 'Nenhum convidado ainda' : 'Nenhum resultado'}</h3>
+        <p>${guests.length === 0 ? 'Clique em "Adicionar Convidado" para começar.' : 'Tente ajustar os filtros.'}</p>
+      </div>`;
+      totalRow.style.display = 'none';
+    } else {
+      el.innerHTML = list.map(g => {
+        const grp = GROUPS[g.group] || GROUPS.outros;
+        const st  = STATUS_LIST.find(s => s.key === g.status) || STATUS_LIST[0];
+        const sideLbl = g.side === 'henrique' ? 'Henrique' : 'Rafaella';
+        return `<div class="guest-row">
+          <div>
+            <p class="guest-name">${g.name}</p>
+            ${g.notes ? `<p class="guest-notes">${g.notes}</p>` : ''}
+            ${g.isPadrinho ? `<span class="padrinho-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Padrinho/Madrinha</span>` : ''}
+          </div>
+          <div>
+            <span class="side-badge ${g.side}">
+              <span class="side-badge-dot" style="background:${g.side==='henrique'?'#6B8FA0':'#C97080'}"></span>
+              ${sideLbl}
+            </span>
+          </div>
+          <div>
+            <span class="group-badge">
+              <span class="group-dot" style="background:${grp.color}"></span>
+              ${grp.label}
+            </span>
+          </div>
+          <div>
+            <button class="s-badge ${st.cls}" onclick="cycleStatus('${g.id}')" title="Clique para mudar status">
+              ${st.label}
+            </button>
+          </div>
+          <div></div>
+          <div class="row-actions">
+            <button class="action-btn" onclick="openEdit('${g.id}')" title="Editar" aria-label="Editar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="action-btn delete" onclick="openDelete('${g.id}')" title="Remover" aria-label="Remover">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('totalLbl').textContent = list.length + ' convidado' + (list.length !== 1 ? 's' : '');
+      totalRow.style.display = 'flex';
+    }
+  }
+
+  /* ─── CYCLE STATUS ─── */
+  function cycleStatus(id) {
+    const d = load();
+    const g = (d.guests||[]).find(x => x.id === id);
+    if (!g) return;
+    g.status = STATUS_NEXT[g.status] || 'convidar';
+    save(d);
+    renderList();
+    const st = STATUS_LIST.find(s => s.key === g.status);
+    showToast(g.name + ' → ' + st.label);
+  }
+
+  /* ─── FORM ─── */
+  function openAdd() {
+    document.getElementById('modalTitle').textContent = 'Adicionar Convidado';
+    document.getElementById('editId').value     = '';
+    document.getElementById('fName').value      = '';
+    document.getElementById('fSide').value      = 'henrique';
+    document.getElementById('fGroup').value     = 'familia';
+    document.getElementById('fStatus').value    = 'convidar';
+    document.getElementById('fNotes').value     = '';
+    document.getElementById('fPadrinho').checked = false;
+    document.getElementById('padrinhoToggle').classList.remove('checked');
+    document.getElementById('formOverlay').classList.add('open');
+    setTimeout(() => document.getElementById('fName').focus(), 220);
+  }
+
+  function openEdit(id) {
+    const d = load();
+    const g = (d.guests||[]).find(x => x.id === id);
+    if (!g) return;
+    document.getElementById('modalTitle').textContent  = 'Editar Convidado';
+    document.getElementById('editId').value            = g.id;
+    document.getElementById('fName').value             = g.name;
+    document.getElementById('fSide').value             = g.side   || 'henrique';
+    document.getElementById('fGroup').value            = g.group  || 'familia';
+    document.getElementById('fStatus').value           = g.status || 'convidar';
+    document.getElementById('fNotes').value            = g.notes  || '';
+    document.getElementById('fPadrinho').checked       = !!g.isPadrinho;
+    document.getElementById('padrinhoToggle').classList.toggle('checked', !!g.isPadrinho);
+    document.getElementById('formOverlay').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('formOverlay').classList.remove('open'); }
+
+  function togglePadrinho() {
+    const chk = document.getElementById('fPadrinho');
+    chk.checked = !chk.checked;
+    document.getElementById('padrinhoToggle').classList.toggle('checked', chk.checked);
+  }
+
+  function saveGuest() {
+    const name = document.getElementById('fName').value.trim();
+    if (!name) {
+      const el = document.getElementById('fName');
+      el.style.borderColor = '#C05050';
+      el.focus();
+      setTimeout(() => el.style.borderColor = '', 1200);
+      return;
+    }
+    const d = load();
+    d.guests = d.guests || [];
+    const id = document.getElementById('editId').value;
+    const entry = {
+      id:         id || (Date.now().toString(36) + Math.random().toString(36).slice(2)),
+      name,
+      side:       document.getElementById('fSide').value,
+      group:      document.getElementById('fGroup').value,
+      status:     document.getElementById('fStatus').value,
+      notes:      document.getElementById('fNotes').value.trim(),
+      isPadrinho: document.getElementById('fPadrinho').checked,
+    };
+    if (id) {
+      const idx = d.guests.findIndex(g => g.id === id);
+      if (idx > -1) d.guests[idx] = entry;
+    } else {
+      d.guests.push(entry);
+    }
+    save(d);
+    closeModal();
+    renderList();
+    showToast(id ? 'Convidado atualizado ✓' : 'Convidado adicionado ✓');
+  }
+
+  /* ─── DELETE ─── */
+  let pendingDeleteId = null;
+  function openDelete(id)  { pendingDeleteId = id; document.getElementById('confirmOverlay').classList.add('open'); }
+  function closeConfirm()  { document.getElementById('confirmOverlay').classList.remove('open'); pendingDeleteId = null; }
+  function confirmDelete() {
+    const d = load();
+    d.guests = (d.guests||[]).filter(g => g.id !== pendingDeleteId);
+    save(d);
+    closeConfirm();
+    renderList();
+    showToast('Convidado removido');
+  }
+
+  /* ─── TOAST ─── */
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  /* ─── ESC / OVERLAY ─── */
+  document.getElementById('formOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+  document.getElementById('confirmOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeConfirm(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeConfirm(); } });
+
+  /* ─── INIT ─── */
+  initSelects();
+  WED.onSnapshot(snap => {
+    _data = snap.exists ? snap.data() : {};
+    renderList();
+  });
+</script>
+</body>
+</html>
