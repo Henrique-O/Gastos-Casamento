@@ -305,6 +305,99 @@
     }
     .btn-secondary:hover { background:var(--beige); }
 
+    /* ─── LOGIN SCREEN ─── */
+    .login-screen {
+      position:fixed; inset:0; z-index:999;
+      background:var(--bg);
+      display:flex; align-items:center; justify-content:center;
+      padding:20px;
+    }
+    .login-card {
+      background:var(--bg-card);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:48px 40px 40px;
+      width:100%; max-width:400px;
+      box-shadow:var(--shadow-lg);
+      text-align:center;
+    }
+    .login-ornament {
+      width:56px; height:56px; border-radius:50%;
+      background:linear-gradient(135deg,var(--gold-lt),var(--beige));
+      display:flex; align-items:center; justify-content:center;
+      margin:0 auto 20px;
+    }
+    .login-logo {
+      font-family:'Great Vibes', cursive;
+      font-size:32px; color:var(--gold);
+      margin-bottom:4px;
+    }
+    .login-sub {
+      font-size:13px; color:var(--text-3); margin-bottom:32px;
+      font-style:italic;
+    }
+    .login-divider {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:24px;
+    }
+    .login-divider::before, .login-divider::after {
+      content:''; flex:1; height:1px; background:var(--border);
+    }
+    .login-divider span { font-size:11px; color:var(--text-3); white-space:nowrap; }
+    .login-error {
+      background:#FFF0F0; border:1px solid #FAD0D0;
+      color:var(--red,#C05050); border-radius:8px;
+      padding:10px 14px; font-size:13px;
+      margin-bottom:16px; display:none;
+      text-align:left;
+    }
+    .pw-wrap { position:relative; }
+    .pw-toggle {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      background:none; border:none; cursor:pointer;
+      color:var(--text-3); padding:4px;
+      display:flex; align-items:center; justify-content:center;
+      transition:color 150ms;
+    }
+    .pw-toggle:hover { color:var(--text-2); }
+    .login-btn {
+      width:100%; height:48px; margin-top:8px;
+      background:linear-gradient(135deg,var(--gold),var(--gold-dk));
+      color:#fff; border:none; border-radius:var(--r2);
+      font-family:'Inter', sans-serif; font-size:15px; font-weight:600;
+      cursor:pointer;
+      box-shadow:0 4px 16px rgba(184,147,90,.28);
+      transition:opacity 150ms, transform 150ms;
+    }
+    .login-btn:hover { opacity:.88; transform:translateY(-1px); }
+    .login-btn:active { transform:translateY(0); }
+    .login-footer {
+      margin-top:24px; font-size:12px; color:var(--text-3);
+      font-style:italic;
+    }
+    @keyframes shake {
+      0%,100% { transform:translateX(0); }
+      20%,60% { transform:translateX(-6px); }
+      40%,80% { transform:translateX(6px); }
+    }
+    .shake { animation:shake 0.35s ease; }
+
+    /* NAV USER */
+    .nav-user {
+      display:flex; align-items:center; gap:12px;
+    }
+    .nav-user-name {
+      font-size:13px; color:var(--text-2); font-weight:500;
+    }
+    .btn-logout {
+      height:34px; padding:0 14px;
+      background:none; border:1.5px solid var(--border);
+      border-radius:8px; font-family:'Inter',sans-serif;
+      font-size:13px; color:var(--text-3); cursor:pointer;
+      transition:background 150ms, color 150ms;
+    }
+    .btn-logout:hover { background:var(--bg-accent); color:var(--text-2); }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width:768px) {
       .budget-grid { grid-template-columns:1fr; }
@@ -317,12 +410,52 @@
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="login-ornament">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B8935A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+    <p class="login-logo">Nosso Casamento</p>
+    <p class="login-sub">Área exclusiva do casal</p>
+
+    <div class="login-divider"><span>Faça seu login</span></div>
+
+    <div id="loginError" class="login-error">Usuário ou senha incorretos. Tente novamente.</div>
+
+    <div class="form-group" style="text-align:left">
+      <label class="form-label" for="loginUser">Seu nome</label>
+      <input class="form-input" id="loginUser" type="text" placeholder="Ex: Henrique O" autocomplete="username">
+    </div>
+    <div class="form-group" style="text-align:left">
+      <label class="form-label" for="loginPass">Senha</label>
+      <div class="pw-wrap">
+        <input class="form-input" id="loginPass" type="password" placeholder="••••••••••" autocomplete="current-password" style="padding-right:42px" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pw-toggle" onclick="togglePw()" type="button" aria-label="Mostrar senha" id="pwToggleBtn">
+          <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <p class="login-footer">Acesso restrito ao casal ♡</p>
+  </div>
+</div>
+
 <nav>
   <span class="nav-logo">Nosso Casamento</span>
-  <ul class="nav-links">
-    <li><a href="index.html" class="active">Visão Geral</a></li>
-    <li><a href="gastos/index.html">Gastos</a></li>
-  </ul>
+  <div style="display:flex;align-items:center;gap:16px">
+    <ul class="nav-links">
+      <li><a href="index.html" class="active">Visão Geral</a></li>
+      <li><a href="gastos/index.html">Gastos</a></li>
+    </ul>
+    <div class="nav-user">
+      <span class="nav-user-name" id="navUserName"></span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
 </nav>
 
 <main>
@@ -435,6 +568,71 @@
 </div>
 
 <script>
+  /* ─── AUTH ─── */
+  const USERS = { 'Henrique O': 'RafaEuTeAmo', 'Rafaella G': 'HenriqueEuTeAmo' };
+
+  function checkAuth() {
+    const user = sessionStorage.getItem('casamento_auth');
+    if (!user) {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('navUserName').textContent = user;
+      document.body.style.overflow = '';
+    }
+  }
+
+  function doLogin() {
+    const user = document.getElementById('loginUser').value.trim();
+    const pass = document.getElementById('loginPass').value;
+    const err  = document.getElementById('loginError');
+
+    if (USERS[user] && USERS[user] === pass) {
+      sessionStorage.setItem('casamento_auth', user);
+      err.style.display = 'none';
+      document.getElementById('loginScreen').style.opacity = '0';
+      document.getElementById('loginScreen').style.transition = 'opacity 300ms';
+      setTimeout(() => {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('navUserName').textContent = user;
+        document.body.style.overflow = '';
+      }, 300);
+    } else {
+      err.style.display = 'block';
+      const card = document.querySelector('.login-card');
+      card.classList.remove('shake');
+      card.offsetHeight;
+      card.classList.add('shake');
+      document.getElementById('loginPass').value = '';
+      document.getElementById('loginPass').focus();
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.removeItem('casamento_auth');
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginScreen').style.opacity = '1';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function togglePw() {
+    const input = document.getElementById('loginPass');
+    const icon  = document.getElementById('eyeIcon');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    } else {
+      input.type = 'password';
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+  }
+
+  checkAuth();
+
   /* ─── DATA ─── */
   const KEY = 'casamento_data';
 

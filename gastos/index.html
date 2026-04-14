@@ -396,6 +396,18 @@
     }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
+    /* NAV USER */
+    .nav-user { display:flex; align-items:center; gap:12px; }
+    .nav-user-name { font-size:13px; color:var(--text-2); font-weight:500; }
+    .btn-logout {
+      height:34px; padding:0 14px;
+      background:none; border:1.5px solid var(--border);
+      border-radius:8px; font-family:'Inter',sans-serif;
+      font-size:13px; color:var(--text-3); cursor:pointer;
+      transition:background 150ms, color 150ms;
+    }
+    .btn-logout:hover { background:var(--bg-accent); color:var(--text-2); }
+
     /* ─── RESPONSIVE ─── */
     @media (max-width:768px) {
       .exp-table-header { display:none; }
@@ -419,10 +431,16 @@
 
 <nav>
   <span class="nav-logo">Nosso Casamento</span>
-  <ul class="nav-links">
-    <li><a href="../index.html">Visão Geral</a></li>
-    <li><a href="index.html" class="active">Gastos</a></li>
-  </ul>
+  <div style="display:flex;align-items:center;gap:16px">
+    <ul class="nav-links">
+      <li><a href="../index.html">Visão Geral</a></li>
+      <li><a href="index.html" class="active">Gastos</a></li>
+    </ul>
+    <div class="nav-user">
+      <span class="nav-user-name" id="navUserName"></span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
 </nav>
 
 <main>
@@ -556,6 +574,18 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  /* ─── AUTH ─── */
+  (function() {
+    const user = sessionStorage.getItem('casamento_auth');
+    if (!user) { window.location.href = '../index.html'; return; }
+    document.getElementById('navUserName').textContent = user;
+  })();
+
+  function doLogout() {
+    sessionStorage.removeItem('casamento_auth');
+    window.location.href = '../index.html';
+  }
+
   /* ─── DATA ─── */
   const KEY = 'casamento_data';
 
